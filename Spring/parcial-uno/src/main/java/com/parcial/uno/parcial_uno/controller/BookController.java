@@ -1,81 +1,62 @@
 package com.parcial.uno.parcial_uno.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.parcial.uno.parcial_uno.dtos.BookDTO;
 import com.parcial.uno.parcial_uno.model.Book;
 import com.parcial.uno.parcial_uno.service.IBookService;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
+
+
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 public class BookController {
+    private final IBookService bookService;
 
-    @Autowired
-    private IBookService bookService;
+    public BookController(IBookService bookService) {
+        this.bookService=bookService;
+    }
 
-    // Obtener todos los libros (GET)
-    // http://localhost:9000/books
+    //cambiar Book por BookDTO
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getAll());
+    public List<Book> getAllBooks() {
+        return bookService.getAll();
     }
-
-    // Crear un nuevo libro (POST)
-    // http://localhost:9000/books
-    @PostMapping
-    public ResponseEntity<BookDTO> createBook(@RequestBody Book book) {
-        if (book == null || book.getBookId() == null) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        BookDTO created = bookService.create(book);
-        return ResponseEntity.ok(created);
-    }
-
-    // Buscar libro por ID (GET)
-    // http://localhost:9000/books/{id}
+    
     @GetMapping("/{id}")
-    public ResponseEntity<BookDTO> getBookById(@PathVariable String id) {
-        BookDTO book = bookService.findById(id);
-        if (book == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(book);
+    public BookDTO getBookById(@PathVariable("id") String id) {
+        return bookService.findById(id);
     }
 
-    // Buscar libro por ISBN (GET)
-    // http://localhost:9000/books/isbn/{isbn}
     @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<BookDTO> getBookByISBN(@PathVariable String isbn) {
-        BookDTO book = bookService.findByISBN(isbn);
-        if (book == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(book);
+    public BookDTO getBookByIsbn(@PathVariable("isbn") String isbn) {
+        return bookService.findByISBN(isbn);
+    }
+    
+    @PostMapping
+    public BookDTO createBook(@RequestBody Book book) {
+        return bookService.create(book);
     }
 
-    // Actualizar libro por ID (PUT)
-    // http://localhost:9000/books/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<BookDTO> updateBook(@PathVariable String id, @RequestBody BookDTO bookDTO) {
-        BookDTO updated = bookService.update(id, bookDTO);
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updated);
+    public BookDTO updateBook(@PathVariable("id") String id, @RequestBody BookDTO book) {
+        return bookService.update(id,book);
+    }
+    
+    @DeleteMapping("/{id}")
+    public String deleteBook(@PathVariable("id") String id){
+        return bookService.delete(id);
     }
 
-    // Eliminar libro por ID (DELETE)
-    // http://localhost:9000/books/{id}
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable String id) {
-        String result = bookService.delete(id);
-        if ("Libro no encontrado".equals(result)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(result);
-    }
 }

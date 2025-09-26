@@ -12,8 +12,4 @@ public interface IBookService {
     BookDTO findByISBN(String isbn);
     BookDTO update(String id, BookDTO book);
     String delete(String id);
-
-    
-
-
 }
